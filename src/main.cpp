@@ -19,7 +19,11 @@ void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
 int main(int argc, char** argv)
 {
 
-  cv::VideoCapture cap(0);
+  cv::VideoCapture cap(2, cv::CAP_V4L2);
+  cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y','U','Y','V'));
+  cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+  cap.set(cv::CAP_PROP_CONVERT_RGB, false);
   std::string window_name = "camera_feed";
   if(!cap.isOpened())
   {
@@ -27,18 +31,32 @@ int main(int argc, char** argv)
     return -1;
   }
   cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
-  cv::Mat frame;
+  cv::Mat p_frame, c_frame, gray, vis;
+  bool first_frame_found = false;
   for(;;)
   {
-    cap >> frame;
-    if(frame.empty())
+    cap >> c_frame;
+    if(c_frame.empty())
     {
       std::cerr << "cannot read frame from stream" << std::endl;
       break;
     }
-    std::vector<cv::Point2f> corners;
-    extract_features(corners, frame);
-    cv::imshow(window_name, frame);
+    if(!first_frame_found)
+    {
+      cv::cvtColor(c_frame, gray, cv::COLOR_YUV2GRAY_YUY2);
+      std::vector<cv::Point2f> corners;
+      extract_features(corners, gray);
+
+      cv::cvtColor(c_frame, vis, cv::COLOR_YUV2BGR_YUY2);
+      for (const auto& pt : corners)
+      {
+        cv::circle(vis, pt, 3, cv::Scalar(0, 255, 0), -1);
+      }
+      first_frame_found = true;
+    } else {
+      
+    }
+    cv::imshow(window_name, vis);
     if(cv::waitKey(1) == 'q')
       break;
 
