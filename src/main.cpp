@@ -16,6 +16,8 @@ void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
   cv::goodFeaturesToTrack(frame, corners, maxCorners, qualityLevel, minDistance);
 }
 
+
+
 int main(int argc, char** argv)
 {
   /**cv::VideoCapture cap(2, cv::CAP_V4L2);
@@ -33,6 +35,8 @@ int main(int argc, char** argv)
   std::string video_path = argv[1];
 
   cv::VideoCapture cap(argv[1], cv::CAP_FFMPEG);
+  cv::Ptr<cv::ORB> m_pOrb;
+  cv::Ptr<cv::BFMatcher> m_bfMatcher;
   if(!cap.isOpened())
   {
     std::cerr << "Error no video capture!" << std::endl;

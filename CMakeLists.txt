@@ -9,7 +9,7 @@ add_compile_options("-O3")
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(INCLUDE_DIRS "./include")
 
-add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE})
+add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE} ${PROJECT_SOURCE_DIR}/src/PoseEstimator.cpp)
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
     message("\nbuilding for aarch64")
