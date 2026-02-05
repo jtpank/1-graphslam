@@ -25,6 +25,7 @@ int main(int argc, char** argv)
   cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
   cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
   cap.set(cv::CAP_PROP_CONVERT_RGB, false);
+
   **/
   std::string window_name = "camera_feed";
   if (argc < 2)
