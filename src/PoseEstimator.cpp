@@ -4,17 +4,71 @@ PoseEstimator::PoseEstimator() : m_pOrb(cv::ORB::create()),
 m_bfMatcher(cv::BFMatcher::create(cv::NORM_HAMMING))
 {
     std::cout << "Constructing PoseEstimator" << std::endl;
+    m_first_frame = false;
 }
 
-
-void PoseEstimator::orbDetectAndCompute(cv::Mat &inputFrame, cv::Mat &outputFrame)
+void PoseEstimator::set_first_frame()
 {
-    cv::Mat des;
-
-
+  if(!m_first_frame)
+    m_first_frame = true;
 }
 
-void PoseEstimator::frameMatcher()
+bool PoseEstimator::found_first_frame()
 {
+  return m_first_frame;
+}
+
+void PoseEstimator::insert_frame(int id, std::vector<cv::KeyPoint> kps, cv::Mat des)
+{
+  m_frames.emplace_back(id, std::move(kps), std::move(des));
+  if (m_frames.size() > 2) m_frames.pop_front();
+}
+
+void PoseEstimator::orbDetectAndCompute(cv::Mat &inputFrame, cv::Mat &des, std::vector<cv::KeyPoint> &kps)
+{
+
+  m_pOrb->detect(inputFrame, kps);
+  m_pOrb->compute(inputFrame, kps, des);
+}
+
+void PoseEstimator::match_frames(float ratio, std::vector<cv::DMatch> &good_matches)
+{
+  if(m_frames.size() > 2)
+  {
+    std::cerr << "frames size exceeds 2. how did this happen?" << std::endl;
+  }
+  if(m_frames[0].descriptors().empty() || m_frames[1].descriptors().empty())
+  {
+    std::cout << "Descriptors are empty in one of the frames" << std::endl;
     return;
+  }
+  std::vector<std::vector<cv::DMatch>> knn;
+  m_bfMatcher->knnMatch(m_frames[0].descriptors(), m_frames[1].descriptors(), knn, 2);
+
+  good_matches.reserve(knn.size());
+  for (const auto& m : knn)
+  {
+    if (m.size() < 2) continue;
+    if (m[0].distance < ratio * m[1].distance)
+      good_matches.push_back(m[0]);
+  }
+}
+
+void PoseEstimator::matches_to_points(
+    const std::vector<cv::DMatch>& matches,
+    std::vector<cv::Point2f>& pts0,
+    std::vector<cv::Point2f>& pts1)
+{
+  pts0.clear(); pts1.clear();
+  pts0.reserve(matches.size());
+  pts1.reserve(matches.size());
+
+  auto kps0 = m_frames[0].keypoints();
+  auto kps1 = m_frames[1].keypoints();
+
+  for (const auto& m : matches)
+  {
+    pts0.push_back(kps0[m.queryIdx].pt);
+    pts1.push_back(kps1[m.trainIdx].pt);
+  }
 }
