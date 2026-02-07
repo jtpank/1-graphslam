@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include "vehicle_dynamics.hpp"
+#include "Utilities.hpp"
 
 static constexpr float LEARNING_RATE = 0.5f;
 
@@ -58,7 +59,6 @@ class OccupancyGrid {
 
         // cool visualizations
         void savetoFile();
-        void toImage();
     private:
 
         static int width;           // in meters
