@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "PoseEstimator.hpp"
+#include <Eigen/Dense>
 
 void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
 {
@@ -22,11 +23,18 @@ void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
 int main(int argc, char** argv)
 {
   /**cv::VideoCapture cap(2, cv::CAP_V4L2);
-  cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y','U','Y','V'));
-  cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-  cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-  cap.set(cv::CAP_PROP_CONVERT_RGB, false);
-  **/
+    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y','U','Y','V'));
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    cap.set(cv::CAP_PROP_CONVERT_RGB, false);
+   **/
+
+  Eigen::MatrixXd m(2, 2);
+    m(0,0) = 3;
+    m(1,0) = 2.5;
+    m(0,1) = -1;
+    m(1,1) = m(1,0) + m(0,1);
+    std::cout << m << std::endl;
   std::string window_name = "camera_feed";
   std::string orb_window_name = "orb_kps";
   if (argc < 2)
@@ -78,7 +86,7 @@ int main(int argc, char** argv)
     {
       cv::circle(vis, pt, 3, cv::Scalar(0, 255, 0), -1);
     }
- 
+
 
     p_pe->insert_frame(id, std::move(kps), std::move(des));
     if(!p_pe->found_first_frame())

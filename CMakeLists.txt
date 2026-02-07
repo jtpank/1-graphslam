@@ -17,9 +17,10 @@ if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
     message("\nbuilding for aarch64")
     #opencv
     find_package( OpenCV 4.0.0 REQUIRED )
+    find_package(Eigen3 REQUIRED NO_MODULE)
     target_include_directories(slam PRIVATE ${OpenCV_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
-    target_link_libraries(slam ${OpenCV_LIBS} pthread)
+    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen)
 endif()
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
@@ -30,9 +31,10 @@ if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     #target_link_libraries(main PRIVATE realsense2::fw realsense2::rsutils realsense2::realsense2 realsense2::realsense-file)
     # opencv
     find_package( OpenCV REQUIRED )
+    find_package(Eigen3 REQUIRED NO_MODULE)
     target_include_directories(slam PRIVATE ${OpenCV_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
-    target_link_libraries( slam ${OpenCV_LIBS} pthread)
+    target_link_libraries( slam ${OpenCV_LIBS} pthread Eigen3::Eigen)
 endif()
 
 #OpenGL
