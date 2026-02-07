@@ -100,6 +100,15 @@ int main(int argc, char** argv)
     p_pe->match_frames(ratio, good_matches);
     std::vector<cv::Point2f> pts0, pts1;
     p_pe->matches_to_points(good_matches, pts0, pts1);
+    
+    //fx,fy: 604.778564453125 604.6596069335938
+    //cx,cy (ppx,ppy): 325.5489807128906 237.3597412109375
+    double focal_length = 604.6;
+    cv::Point2d principal_point(325.5489, 237.3597);
+    if(pts0.size() > 8 && pts1.size() > 8)
+    {
+      p_pe->generate_pose(focal_length, principal_point, pts0, pts1);
+    }
 
 
     cv::imshow(orb_window_name, orb_vis);

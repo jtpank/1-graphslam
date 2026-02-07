@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 project(slam)
-set(ENTRY_FILE "main.cpp")
+set(ENTRY_FILE "slam_main.cpp")
 add_compile_options("-O3")
 
 #file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
