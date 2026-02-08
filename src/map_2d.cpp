@@ -85,10 +85,10 @@ bool OccupancyGrid::isCellOccupied(int x, int y) const {
 
 // updates from camera sensor scan:
 void OccupancyGrid::updateFromPoint(Pose2D robot_pose, Point2D point) {
-    int sensor_x = static_cast<int>(robot_pose.x);
-    int sensor_y = static_cast<int>(robot_pose.y);
-    int obs_x = static_cast<int>(point.x);
-    int obs_y = static_cast<int>(point.y);
+    int sensor_x = static_cast<int>(robot_pose(0));
+    int sensor_y = static_cast<int>(robot_pose(1));
+    int obs_x = static_cast<int>(point(0));
+    int obs_y = static_cast<int>(point(1));
 
 
     // Need to implement ray tracing

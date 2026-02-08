@@ -8,6 +8,8 @@
 
 static constexpr float LEARNING_RATE = 0.5f;
 
+using namespace utilities;
+
 struct OccupancyCell {
     float prob;
     OccupancyCell() : prob(0.5f) {};  // default everything is set to 0.5 (unknown)
@@ -34,8 +36,8 @@ class OccupancyGrid {
         OccupancyGrid(int w, int h, float res, float origin_x = 0.0f, float origin_y = 0.0f);
         ~OccupancyGrid() = default;
 
-        void updateFromPoint(Pose2D robot_pose, Point2D point);
-        void updateFromScan(Pose2D robot_pose, std::vector<Point2D> scanpoints);
+        void updateFromPoint(Vector3d robot_pose, Vector2d point);
+        void updateFromScan(Vector3d robot_pose, std::vector<Vector2d> scanpoints);
 
         void setCellProb(int x, int y, float prob);
 

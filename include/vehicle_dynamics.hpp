@@ -2,8 +2,9 @@
 
 #include <cmath>
 #include <vector>
-#include <utility>
 #include "Utilities.hpp"
+
+using namespace utilities;
 
 // Keeping this namespace so that if there are different dynamics models we can easily swap them out and maintain modularity.
 namespace vehicle_dynamics {
@@ -12,10 +13,10 @@ struct DriveParams {
     float track_width;
     float wheel_radius;
 
-    float mass;
-    float inertia;
-    float max_velocity;
-    float max_omega;        //
+    float mass;             // literally doesn't matter right now
+    float inertia;          // literally doesn't matter right now
+    float max_velocity;     // linear velocity of the vehicle, meters per second
+    float max_omega;        // angular velocity of the wheels, radians per second
 
     DriveParams()
         :track_width(0.5f),
@@ -24,7 +25,6 @@ struct DriveParams {
         inertia(1.0),
         max_velocity(1.0),
         max_omega(1.0f) {}
-
 };
 
 class VehicleDynamics{
@@ -32,15 +32,12 @@ class VehicleDynamics{
         VehicleDynamics(const DriveParams& params);
         ~VehicleDynamics();
 
-        DifferentialDriveControl tanktoDiff(DriveControlOutput tank_control);
-        DriveControlOutput difftoTank(DifferentialDriveControl diff_control);
-
-        VehicleState predict(VehicleState current_state, DifferentialDriveControl control, float dt);
-        Pose2D predictPose(Pose2D current_pose, DifferentialDriveControl control, float dt);
+        VehicleState integrate(VehicleState current_state, Vector2d control, float dt);
+        Vector3d predictPose(Vector3d current_pose, Vector2d control, float dt);
 
         private:
             DriveParams params_;
-            Pose2D integratePose(const Pose2D& pose, float v, float omega, float dt) const;
+            Vector3d integratePose(const Vector3d& pose, float v, float omega, float dt) const;
 
 };
 
