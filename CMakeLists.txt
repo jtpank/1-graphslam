@@ -10,7 +10,9 @@ add_compile_options("-O3")
 set(INCLUDE_DIRS "./include")
 set(LIB_DIRS "./lib")
 
-add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE})
+add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE}
+${PROJECT_SOURCE_DIR}/src/vehicle_dynamics.cpp
+)
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
 
@@ -39,8 +41,8 @@ if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     target_include_directories(slam PRIVATE ${EIGEN3_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${LIB_DIRS})
-    target_link_libraries( slam ${OpenCV_LIBS} pthread)
-    target_link_libraries(slam PRIVATE Eigen3::Eigen)
+    # target_link_libraries( slam ${OpenCV_LIBS} pthread)
+    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen)
 endif()
 
 #OpenGL

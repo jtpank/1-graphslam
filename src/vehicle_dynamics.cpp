@@ -42,23 +42,17 @@ namespace vehicle_dynamics {
     };
 
 // Visualizer
-class ASCIIVisualizer {
-private:
-    int width_, height_;
-    float scale_;  // pixels per meter
-    std::vector<char> buffer_;
-    
-public:
-    ASCIIVisualizer(int width = 80, int height = 40, float scale = 5.0f)
+
+    ASCIIVisualizer::ASCIIVisualizer(int width = 80, int height = 40, float scale = 5.0f)
         : width_(width), height_(height), scale_(scale) {
         buffer_.resize(width * height, ' ');
     }
     
-    void clear() {
+    void ASCIIVisualizer::clear() {
         std::fill(buffer_.begin(), buffer_.end(), ' ');
     }
     
-    void drawPoint(float x, float y, char symbol = '*') {
+    void ASCIIVisualizer::drawPoint(float x, float y, char symbol = '*') {
         // Convert world coordinates to screen coordinates
         int sx = static_cast<int>(width_ / 2 + x * scale_);
         int sy = static_cast<int>(height_ / 2 - y * scale_);  // flip y
@@ -68,7 +62,7 @@ public:
         }
     }
     
-    void drawRobot(float x, float y, float theta) {
+    void ASCIIVisualizer::drawRobot(float x, float y, float theta) {
         drawPoint(x, y, 'O');
         
         // Draw orientation arrow
@@ -78,13 +72,13 @@ public:
         drawPoint(tip_x, tip_y, '>');
     }
     
-    void drawTrail(const std::vector<Vector2d>& trail) {
+    void ASCIIVisualizer::drawTrail(const std::vector<Vector2d>& trail) {
         for (const auto& point : trail) {
             drawPoint(point(0), point(1), '.');
         }
     }
     
-    void render() {
+    void ASCIIVisualizer::render() {
         // Clear screen (ANSI escape code)
         std::cout << "\033[2J\033[H";
         
@@ -108,5 +102,3 @@ public:
         std::cout << "+\n";
     }
 };
-
-}

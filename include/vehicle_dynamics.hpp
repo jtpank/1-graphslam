@@ -28,18 +28,37 @@ struct DriveParams {
 };
 
 class VehicleDynamics{
+    private:
+        float vL, vR;
     public:
         VehicleDynamics(const DriveParams& params);
         ~VehicleDynamics();
 
         VehicleState integrate(VehicleState current_state, Vector2d control, float dt);
-        Vector3d predictPose(Vector3d current_pose, Vector2d control, float dt);
+        Vector3d predictPose(Vector3d& current_pose, float v, float omega, float dt);
 
         private:
             DriveParams params_;
             Vector3d integratePose(const Vector3d& pose, float v, float omega, float dt) const;
 
 };
+
+class ASCIIVisualizer{
+    private:
+        int width_, height_;
+        float scale_;
+        std::vector<char> buffer_;
+    public:
+        ASCIIVisualizer(int width, int height, float scale);
+
+        void clear();
+        void drawRobot(float x, float y, float theta);
+        void drawPoint(float x, float y, char symbol);
+        void drawTrail(const std::vector<Vector2d> &trail);
+        void render();
+
+};
+
 
 
 } // namespace vehicle_dynamics
