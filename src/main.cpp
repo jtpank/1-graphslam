@@ -26,11 +26,11 @@ int main(int argc, char** argv)
 
   DriveParams myParams;
   myParams.track_width = 0.5;
-  myParams.wheel_radius = 0.25;
+  myParams.wheel_radius = 1.5;
   myParams.mass = 0.5;
   myParams.inertia = 1.0;
-  myParams.max_velocity = 1.0;
-  myParams.max_omega = 1.0;
+  myParams.max_velocity = 2.0;
+  myParams.max_omega = 2.0;
 
   VehicleDynamics robot(myParams);
 
@@ -41,7 +41,9 @@ int main(int argc, char** argv)
   state.a = 0.0f;
   state.alpha = 0.0f;
 
-  ASCIIVisualizer viz(80, 40, 5.0f);
+  OpenCVVisualizer viz(600, 400, 5.0f);
+
+  cv::namedWindow("Vehicle Simulation", cv::WINDOW_AUTOSIZE);
 
   std::vector<Vector2d> trail;
 
@@ -54,9 +56,9 @@ int main(int argc, char** argv)
     if (i < 300) {
       control_input = Vector2d(0.5f, 0.5f);
     } else if (i < 600) {
-      control_input = Vector2d(0.3f, 0.7f);
+      control_input = Vector2d(0.49f, 0.51f);
     } else {
-      control_input = Vector2d(0.7f, 0.3f);
+      control_input = Vector2d(0.51f, 0.49f);
     }
 
     state = robot.integrate(state, control_input, dt);
@@ -72,7 +74,7 @@ int main(int argc, char** argv)
                   << "x=" << state.pose(0) << " "
                   << "y=" << state.pose(1) << " "
                   << "theta=" << state.pose(2) << "\n";
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   std::cout << "Simulation complete!\n";
 

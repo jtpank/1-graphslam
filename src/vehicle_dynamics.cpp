@@ -41,64 +41,45 @@ namespace vehicle_dynamics {
         return prediction;
     };
 
-// Visualizer
+// Visualizer OpenCV
 
-    ASCIIVisualizer::ASCIIVisualizer(int width = 80, int height = 40, float scale = 5.0f)
-        : width_(width), height_(height), scale_(scale) {
-        buffer_.resize(width * height, ' ');
+    OpenCVVisualizer::OpenCVVisualizer(int width, int height, float scale) {
+        // Initialize the OpenCV visualizer
+        // width and height are in pixels, scale is how many pixels per meter
+        this->width = width;
+        this->height = height;
+        this->scale = scale;
+        canvas = cv::Mat(height, width, CV_8UC3, cv::Scalar(0, 0, 0));
     }
-    
-    void ASCIIVisualizer::clear() {
-        std::fill(buffer_.begin(), buffer_.end(), ' ');
+
+    OpenCVVisualizer::~OpenCVVisualizer() {}
+
+    void OpenCVVisualizer::clear() {
+        canvas = cv::Scalar(0, 0, 0);
     }
-    
-    void ASCIIVisualizer::drawPoint(float x, float y, char symbol = '*') {
-        // Convert world coordinates to screen coordinates
-        int sx = static_cast<int>(width_ / 2 + x * scale_);
-        int sy = static_cast<int>(height_ / 2 - y * scale_);  // flip y
-        
-        if (sx >= 0 && sx < width_ && sy >= 0 && sy < height_) {
-            buffer_[sy * width_ + sx] = symbol;
+
+    void OpenCVVisualizer::drawTrail(const std::vector<Vector2d>& trail) {
+        for (size_t i = 1; i < trail.size(); i++) {
+            cv::line(canvas,
+                     cv::Point(trail[i-1](0) * scale + width / 2, height / 2 - trail[i-1](1) * scale),
+                     cv::Point(trail[i](0) * scale + width / 2, height / 2 - trail[i](1) * scale),
+                     cv::Scalar(255, 255, 255), 2);
         }
     }
-    
-    void ASCIIVisualizer::drawRobot(float x, float y, float theta) {
-        drawPoint(x, y, 'O');
-        
-        // Draw orientation arrow
-        float arrow_length = 0.3f;
-        float tip_x = x + arrow_length * std::cos(theta);
-        float tip_y = y + arrow_length * std::sin(theta);
-        drawPoint(tip_x, tip_y, '>');
+
+    void OpenCVVisualizer::drawRobot(float x, float y, float theta) {
+        // Draw a simple triangle to represent the robot
+        std::vector<cv::Point> points;
+        points.push_back(cv::Point(x * scale + width / 2 + 10 * std::cos(theta), height / 2 - y * scale - 10 * std::sin(theta)));
+        points.push_back(cv::Point(x * scale + width / 2 + 10 * std::cos(theta + M_PI / 2), height / 2 - y * scale - 10 * std::sin(theta + M_PI / 2)));
+        points.push_back(cv::Point(x * scale + width / 2 + 10 * std::cos(theta - M_PI / 2), height / 2 - y * scale - 10 * std::sin(theta - M_PI / 2)));
+
+        cv::fillConvexPoly(canvas, points.data(), points.size(), cv::Scalar(0, 255, 0));
     }
-    
-    void ASCIIVisualizer::drawTrail(const std::vector<Vector2d>& trail) {
-        for (const auto& point : trail) {
-            drawPoint(point(0), point(1), '.');
-        }
+
+    void OpenCVVisualizer::render() {
+        cv::imshow("Vehicle Simulation", canvas);
+        cv::waitKey(1);
     }
-    
-    void ASCIIVisualizer::render() {
-        // Clear screen (ANSI escape code)
-        std::cout << "\033[2J\033[H";
-        
-        // Draw top border
-        std::cout << "+";
-        for (int i = 0; i < width_; ++i) std::cout << "-";
-        std::cout << "+\n";
-        
-        // Draw buffer
-        for (int y = 0; y < height_; ++y) {
-            std::cout << "|";
-            for (int x = 0; x < width_; ++x) {
-                std::cout << buffer_[y * width_ + x];
-            }
-            std::cout << "|\n";
-        }
-        
-        // Draw bottom border
-        std::cout << "+";
-        for (int i = 0; i < width_; ++i) std::cout << "-";
-        std::cout << "+\n";
-    }
-};
+
+} // namespace vehicle_dynamics

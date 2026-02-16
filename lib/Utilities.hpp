@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <utility>
+#include <opencv2/opencv.hpp>
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 

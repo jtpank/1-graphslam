@@ -43,20 +43,20 @@ class VehicleDynamics{
 
 };
 
-class ASCIIVisualizer{
+class OpenCVVisualizer {
     private:
-        int width_, height_;
-        float scale_;
-        std::vector<char> buffer_;
+        int width;
+        int height;
+        float scale; // pixels per meter
+        cv::Mat canvas;
     public:
-        ASCIIVisualizer(int width, int height, float scale);
+        OpenCVVisualizer(int width, int height, float scale);
+        ~OpenCVVisualizer();
 
         void clear();
+        void drawTrail(const std::vector<Vector2d>& trail);
         void drawRobot(float x, float y, float theta);
-        void drawPoint(float x, float y, char symbol);
-        void drawTrail(const std::vector<Vector2d> &trail);
         void render();
-
 };
 
 
