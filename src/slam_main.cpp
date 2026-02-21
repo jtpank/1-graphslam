@@ -62,6 +62,7 @@ int main(int argc, char** argv)
   int id = 0;
   for(;;)
   {
+    std::cout << std::format("id: {}\n", id);
     id++;
     cap >> c_frame;
     if(c_frame.empty())
@@ -97,6 +98,11 @@ int main(int argc, char** argv)
     if(pts0.size() > 8 && pts1.size() > 8)
     {
       p_pe->generate_pose(focal_length, principal_point, pts0, pts1, timestamp_ms);
+    }
+
+    if(id > 100)
+    {
+      break;
     }
 
 

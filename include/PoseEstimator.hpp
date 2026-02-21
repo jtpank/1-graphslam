@@ -41,5 +41,7 @@ class PoseEstimator {
     cv::Ptr<cv::BFMatcher> m_bfMatcher;
     bool m_first_frame = false;
     std::ofstream &m_file_out;
+    Eigen::Quaterniond m_q_w_c = Eigen::Quaterniond::Identity(); // world->current orientation
+    Eigen::Vector3d m_t_w_c = Eigen::Vector3d::Zero();          // world position of current camera
 
 };

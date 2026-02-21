@@ -6,11 +6,17 @@ using namespace Eigen;
 using namespace std;
 
 // path to trajectory file
-string trajectory_file = "./trajectory.txt";
+// string trajectory_file = "./trajectory.txt";
 
 void DrawTrajectory(vector<Isometry3d, Eigen::aligned_allocator<Isometry3d>>);
 
 int main(int argc, char **argv) {
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " trajectory_file.txt" << std::endl;
+        return -1;
+    }
+    std::string trajectory_file = argv[1];
     vector<Isometry3d, Eigen::aligned_allocator<Isometry3d>> poses;
     ifstream fin(trajectory_file);
     if (!fin) {

@@ -3,6 +3,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_COMPILER g++-13)
 
 project(slam)
+#set(ENTRY_FILE "pangolin_example_main.cpp")
 set(ENTRY_FILE "slam_main.cpp")
 add_compile_options("-O3")
 

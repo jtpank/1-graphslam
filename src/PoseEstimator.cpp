@@ -1,6 +1,16 @@
 #include "PoseEstimator.hpp"
 
-PoseEstimator::PoseEstimator(std::ofstream &file_out) : m_pOrb(cv::ORB::create()),
+PoseEstimator::PoseEstimator(std::ofstream &file_out) : m_pOrb(cv::ORB::create(
+        2000,          // nfeatures (default 500 → too low for VO)
+        1.2f,          // scaleFactor
+        8,             // nlevels
+        31,            // edgeThreshold
+        0,             // firstLevel
+        2,             // WTA_K
+        cv::ORB::HARRIS_SCORE, // better for SLAM than FAST_SCORE
+        31,            // patchSize
+        15             // fastThreshold (lower → more features)
+)),
 m_bfMatcher(cv::BFMatcher::create(cv::NORM_HAMMING)),
 m_file_out(file_out)
 {
@@ -83,37 +93,48 @@ void PoseEstimator::generate_pose(double focal_length, cv::Point2d &principal_po
   //fundamental, essential matrix
   cv::Mat f_m, e_m;
   f_m = cv::findFundamentalMat(pts0, pts1, cv::FM_8POINT);
-  std::cout << "fundamental_mat: " << std::endl << f_m << std::endl;
+  // std::cout << "fundamental_mat: " << std::endl << f_m << std::endl;
 
   e_m = cv::findEssentialMat(pts0, pts1, focal_length, principal_point);
-  std::cout << "essential_mat: " << std::endl << e_m << std::endl;
+  // std::cout << "essential_mat: " << std::endl << e_m << std::endl;
 
   //Q: do we need homography matrix here using RANSAC?
 
   cv::Mat R, t;
   cv::recoverPose(e_m, pts0, pts1, R, t, focal_length, principal_point);
 
-  Eigen::Matrix3d eigen_mat;
-  cv::cv2eigen(R, eigen_mat);
-  Eigen::Quaterniond quat(eigen_mat);
-  quat.normalize();
-  std::cout << "Quaternion (x, y, z, w): "
-          << quat.x() << ", "
-          << quat.y() << ", "
-          << quat.z() << ", "
-          << quat.w() << std::endl;
-  std::cout << "R: " << std::endl << R << std::endl;
-  std::cout << "t: " << std::endl << t << std::endl;
+  Eigen::Matrix3d R_relative;
+  cv::cv2eigen(R, R_relative);
+  Eigen::Quaterniond q_relative(R_relative);
+  q_relative.normalize();
+  Eigen::Vector3d t_relative(
+      t.at<double>(0,0),
+      t.at<double>(1,0),
+      t.at<double>(2,0)
+  );
+  //arbitrary scale
+  double s = 0.05;              // choose something (meters per frame-ish)
+  t_relative *= s;
+  // Accumulate (IMPORTANT: use previous q for translating)
+  Eigen::Quaterniond q_prev = m_q_w_c;
+  m_q_w_c = (m_q_w_c * q_relative).normalized();
+  m_t_w_c = m_t_w_c + q_prev * t_relative;    // rotate into world and add
 
-double tx = t.at<double>(0,0);
-double ty = t.at<double>(1,0);
-double tz = t.at<double>(2,0);
-std::string line = std::format(
-    "{:.4f} {:.4f} {:.4f} {:.4f} {:.6f} {:.6f} {:.6f} {:.6f}",
-    timestamp_ms,
-    tx, ty, tz,
-    quat.x(), quat.y(), quat.z(), quat.w()
-);
+
+  // std::cout << "Quaternion (x, y, z, w): "
+  //         << quat.x() << ", "
+  //         << quat.y() << ", "
+  //         << quat.z() << ", "
+  //         << quat.w() << std::endl;
+  // std::cout << "R: " << std::endl << R << std::endl;
+  // std::cout << "t: " << std::endl << t << std::endl;
+
+  std::string line = std::format(
+      "{:.3f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f}",
+      timestamp_ms,
+      m_t_w_c.x(), m_t_w_c.y(), m_t_w_c.z(),
+      m_q_w_c.x(), m_q_w_c.y(), m_q_w_c.z(), m_q_w_c.w()
+  );
   write_line(line);
 }
 
