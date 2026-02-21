@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_COMPILER g++-13)
+
 project(slam)
 set(ENTRY_FILE "slam_main.cpp")
 add_compile_options("-O3")

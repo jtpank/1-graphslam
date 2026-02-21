@@ -1,7 +1,8 @@
 #include "PoseEstimator.hpp"
 
-PoseEstimator::PoseEstimator() : m_pOrb(cv::ORB::create()),
-m_bfMatcher(cv::BFMatcher::create(cv::NORM_HAMMING))
+PoseEstimator::PoseEstimator(std::ofstream &file_out) : m_pOrb(cv::ORB::create()),
+m_bfMatcher(cv::BFMatcher::create(cv::NORM_HAMMING)),
+m_file_out(file_out)
 {
     std::cout << "Constructing PoseEstimator" << std::endl;
     m_first_frame = false;
@@ -75,7 +76,8 @@ void PoseEstimator::matches_to_points(
 
 void PoseEstimator::generate_pose(double focal_length, cv::Point2d &principal_point,
     std::vector<cv::Point2f>& pts0,
-    std::vector<cv::Point2f>& pts1)
+    std::vector<cv::Point2f>& pts1,
+    double timestamp_ms)
 {
   //principal point is the exact center in pix coords of the pixel plane
   //fundamental, essential matrix
@@ -90,6 +92,38 @@ void PoseEstimator::generate_pose(double focal_length, cv::Point2d &principal_po
 
   cv::Mat R, t;
   cv::recoverPose(e_m, pts0, pts1, R, t, focal_length, principal_point);
+
+  Eigen::Matrix3d eigen_mat;
+  cv::cv2eigen(R, eigen_mat);
+  Eigen::Quaterniond quat(eigen_mat);
+  quat.normalize();
+  std::cout << "Quaternion (x, y, z, w): "
+          << quat.x() << ", "
+          << quat.y() << ", "
+          << quat.z() << ", "
+          << quat.w() << std::endl;
   std::cout << "R: " << std::endl << R << std::endl;
   std::cout << "t: " << std::endl << t << std::endl;
+
+double tx = t.at<double>(0,0);
+double ty = t.at<double>(1,0);
+double tz = t.at<double>(2,0);
+std::string line = std::format(
+    "{:.4f} {:.4f} {:.4f} {:.4f} {:.6f} {:.6f} {:.6f} {:.6f}",
+    timestamp_ms,
+    tx, ty, tz,
+    quat.x(), quat.y(), quat.z(), quat.w()
+);
+  write_line(line);
+}
+
+//file io helper
+void PoseEstimator::write_line(std::string &line)
+{
+  if(!m_file_out.is_open())
+  {
+    std::cerr << "file is not opened!" << std::endl;
+    return;
+  }
+  m_file_out << line << "\n";
 }

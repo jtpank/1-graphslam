@@ -21,4 +21,21 @@ If it complains about the python version on the cmake, force a specific version 
  cmake -B build -DPython3_EXECUTABLE=/usr/bin/python3 -DCMAKE_CXX_FLAGS="-Wno-error -Wno-error=deprecated-copy"
 
 Multithread the build
- cmake --build build -j 10
+ `cmake --build build -j 10`
+
+
+Note: For linux ubuntu 20.04
+- check with `lsb_release -a`
+
+install g++-13:
+```
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt update
+sudo apt install g++-13
+```
+
+Otherwise at the top of `CMakeLists.txt` use:
+```
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+```

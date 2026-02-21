@@ -7,11 +7,16 @@
 #include <deque>
 #include <cstdio>
 #include <iostream>
+#include <Eigen/Geometry>
+#include <Eigen/Dense>
+#include <opencv2/core/eigen.hpp>
 #include "Frames.hpp"
+#include <fstream>
+#include <format>
 
 class PoseEstimator {
   public:
-    PoseEstimator();
+    PoseEstimator(std::ofstream &file_out);
     void frameMatcher();
     void orbDetectAndCompute(cv::Mat &inputFrame, cv::Mat &des, std::vector<cv::KeyPoint> &kps);
     void set_first_frame();
@@ -25,12 +30,16 @@ class PoseEstimator {
 
     void generate_pose(double focal_length, cv::Point2d &principal_point,
         std::vector<cv::Point2f>& pts0,
-        std::vector<cv::Point2f>& pts1);
+        std::vector<cv::Point2f>& pts1,
+        double timestamp_ms);
+    
+    void write_line(std::string &line);
 
   private:
     std::deque<Frames> m_frames;
     cv::Ptr<cv::ORB> m_pOrb;
     cv::Ptr<cv::BFMatcher> m_bfMatcher;
     bool m_first_frame = false;
+    std::ofstream &m_file_out;
 
 };
