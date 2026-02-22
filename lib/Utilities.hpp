@@ -23,6 +23,7 @@ namespace utilities{
 struct VehicleState {
     Vector3d pose;  // pose will always be in the world frame(x, y, theta)
     Vector2d vel;   // velocity in the world frame
+    Vector3d fov;   // fov of camera. extremely basic
 
     float omega;    // angular velocity in the body frame, positive ccw
     float a;        // linear acceleration in the body frame, position forward

@@ -36,6 +36,7 @@ class VehicleDynamics{
 
         VehicleState integrate(VehicleState current_state, Vector2d control, float dt);
         Vector3d predictPose(Vector3d& current_pose, float v, float omega, float dt);
+        Vector3d updateFOV(Vector3d& current_pose);
 
         private:
             DriveParams params_;
@@ -56,6 +57,7 @@ class OpenCVVisualizer {
         void clear();
         void drawTrail(const std::vector<Vector2d>& trail);
         void drawRobot(float x, float y, float theta);
+        void drawFOV(float x, float y, float theta_left, float theta_right, float depth);
         void render();
 };
 

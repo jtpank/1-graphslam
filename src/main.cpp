@@ -32,7 +32,14 @@ int main(int argc, char** argv)
   myParams.max_velocity = 2.0;
   myParams.max_omega = 2.0;
 
+  // initialize Robot Odometry
   VehicleDynamics robot(myParams);
+  // initialize Occupancy Grid
+  /*
+  For this pass, using a local 5m x 5m grid
+  Resolution of 20 -> 500 total cells
+  */
+  // OccupancyGrid map();
 
   VehicleState state;
   state.pose = Vector3d(0.0f, 0.0f, 0.0f);
@@ -68,6 +75,7 @@ int main(int argc, char** argv)
     viz.clear();
     viz.drawTrail(trail);
     viz.drawRobot(state.pose(0), state.pose(1), state.pose(2));
+    viz.drawFOV(state.pose(0), state.pose(1), state.fov(0), state.fov(1), state.fov(2));
     viz.render();
 
     std::cout << "Step " << i << ": "

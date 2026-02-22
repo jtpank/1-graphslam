@@ -18,6 +18,7 @@ namespace vehicle_dynamics {
 
         VehicleState new_state;
         new_state.pose = predictPose(current_state.pose, v, omega, dt);
+        new_state.fov = updateFOV(new_state.pose);
         new_state.vel = Vector2d(v * std::cos(new_state.pose(2)), v * std::sin(new_state.pose(2))); // velocity in world frame
         new_state.omega = omega;
         // these accelerations might not be useful at all
@@ -39,6 +40,16 @@ namespace vehicle_dynamics {
         prediction(2) += omega * dt; // units will be in radians.
 
         return prediction;
+    };
+
+    Vector3d VehicleDynamics::updateFOV(Vector3d& pose)
+    {
+        // Will need to update with real camera,
+        Vector3d fov; // structure of [Left, Right, Depth]
+        fov(0) = pose[2] + 1;
+        fov(1) = pose[2] - 1;
+        fov(2) = 30;
+        return fov;
     };
 
 // Visualizer OpenCV
@@ -75,6 +86,35 @@ namespace vehicle_dynamics {
         points.push_back(cv::Point(x * scale + width / 2 + 10 * std::cos(theta - M_PI / 2), height / 2 - y * scale - 10 * std::sin(theta - M_PI / 2)));
 
         cv::fillConvexPoly(canvas, points.data(), points.size(), cv::Scalar(0, 255, 0));
+    }
+
+    void OpenCVVisualizer::drawFOV(float x, float y, float theta_left, float theta_right, float depth) {
+        // Convert robot position to screen coordinates
+        int cx = x * scale + width / 2;
+        int cy = height / 2 - y * scale;
+        
+        // Calculate FOV boundary endpoints
+        int left_x = cx + depth * scale * std::cos(theta_left);
+        int left_y = cy - depth * scale * std::sin(theta_left);
+        
+        int right_x = cx + depth * scale * std::cos(theta_right);
+        int right_y = cy - depth * scale * std::sin(theta_right);
+        
+        // Draw left boundary line
+        cv::line(canvas, cv::Point(cx, cy), cv::Point(left_x, left_y), 
+                cv::Scalar(255, 255, 255), 1);
+        
+        // Draw right boundary line
+        cv::line(canvas, cv::Point(cx, cy), cv::Point(right_x, right_y), 
+                cv::Scalar(255, 255, 255), 1);
+        
+        // Optional: Draw arc at the end to show FOV range
+        cv::ellipse(canvas, cv::Point(cx, cy), 
+                    cv::Size(depth * scale, depth * scale),
+                    0, 
+                    -theta_right * 180 / M_PI,  // Convert to degrees
+                    -theta_left * 180 / M_PI, 
+                    cv::Scalar(255, 255, 255, 50), 1);
     }
 
     void OpenCVVisualizer::render() {
