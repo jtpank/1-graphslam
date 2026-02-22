@@ -7,6 +7,11 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include "Utilities.hpp"
+#include "vehicle_dynamics.hpp"
+#include "map_2d.hpp"
+
+using namespace vehicle_dynamics;
 
 void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
 {
@@ -18,6 +23,62 @@ void extract_features(std::vector<cv::Point2f> &corners, cv::Mat &frame)
 
 int main(int argc, char** argv)
 {
+
+  DriveParams myParams;
+  myParams.track_width = 0.5;
+  myParams.wheel_radius = 1.5;
+  myParams.mass = 0.5;
+  myParams.inertia = 1.0;
+  myParams.max_velocity = 2.0;
+  myParams.max_omega = 2.0;
+
+  VehicleDynamics robot(myParams);
+
+  VehicleState state;
+  state.pose = Vector3d(0.0f, 0.0f, 0.0f);
+  state.vel = Vector2d(0.0f, 0.0f);
+  state.omega = 0.0f;
+  state.a = 0.0f;
+  state.alpha = 0.0f;
+
+  OpenCVVisualizer viz(600, 400, 5.0f);
+
+  cv::namedWindow("Vehicle Simulation", cv::WINDOW_AUTOSIZE);
+
+  std::vector<Vector2d> trail;
+
+  float dt = 0.1f;
+  int num_steps = 1000;
+
+  Vector2d control_input;
+
+  for (int i = 0; i < num_steps; i++) {
+    if (i < 300) {
+      control_input = Vector2d(0.5f, 0.5f);
+    } else if (i < 600) {
+      control_input = Vector2d(0.49f, 0.51f);
+    } else {
+      control_input = Vector2d(0.51f, 0.49f);
+    }
+
+    state = robot.integrate(state, control_input, dt);
+
+    trail.push_back(Vector2d(state.pose(0), state.pose(1)));
+
+    viz.clear();
+    viz.drawTrail(trail);
+    viz.drawRobot(state.pose(0), state.pose(1), state.pose(2));
+    viz.render();
+
+    std::cout << "Step " << i << ": "
+                  << "x=" << state.pose(0) << " "
+                  << "y=" << state.pose(1) << " "
+                  << "theta=" << state.pose(2) << "\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+  std::cout << "Simulation complete!\n";
+
+
   /**cv::VideoCapture cap(2, cv::CAP_V4L2);
   cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y','U','Y','V'));
   cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
