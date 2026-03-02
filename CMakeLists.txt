@@ -10,24 +10,29 @@ add_compile_options("-O3")
 #file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(INCLUDE_DIRS "./include")
+set(LIB_DIRS "./lib")
 
 add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE} 
-  ${PROJECT_SOURCE_DIR}/src/PoseEstimator.cpp
-  ${PROJECT_SOURCE_DIR}/src/Frames.cpp)
-
+    ${PROJECT_SOURCE_DIR}/src/PoseEstimator.cpp
+    ${PROJECT_SOURCE_DIR}/src/Frames.cpp
+    ${PROJECT_SOURCE_DIR}/src/vehicle_dynamics.cpp
+    )
 #depends on where Pangolin is installed
 set(Pangolin_DIR "${CMAKE_SOURCE_DIR}/deps/Pangolin/build")
 find_package(Pangolin REQUIRED CONFIG)
 
-
-if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
-    message("\nbuilding for aarch64")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     #opencv
+    message("\nbuilding for ARM (aarch64/arm64)")
     find_package( OpenCV 4.0.0 REQUIRED )
     find_package(Eigen3 REQUIRED NO_MODULE)
     target_include_directories(slam PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_include_directories(slam PRIVATE ${EIGEN3_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
-    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen)  #${Pangolin_LIBRARIES})
+    target_include_directories(slam PRIVATE ${LIB_DIRS})
+    target_link_libraries(slam PRIVATE ${OpenCV_LIBS} pthread)
+    target_link_libraries(slam PRIVATE Eigen3::Eigen)
+    target_link_libraries(slam PRIVATE ${Pangolin_LIBRARIES})
 endif()
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
@@ -40,8 +45,12 @@ if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     find_package( OpenCV REQUIRED )
     find_package(Eigen3 REQUIRED NO_MODULE)
     target_include_directories(slam PRIVATE ${OpenCV_INCLUDE_DIRS})
+    target_include_directories(slam PRIVATE ${EIGEN3_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
-    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen ${Pangolin_LIBRARIES})  #${Pangolin_LIBRARIES})
+    target_include_directories(slam PRIVATE ${LIB_DIRS})
+    # target_link_libraries( slam ${OpenCV_LIBS} pthread)
+    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen)
+    target_link_libraries(slam ${Pangolin_LIBRARIES})
 endif()
 
 #OpenGL
