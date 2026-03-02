@@ -3,8 +3,8 @@ Frames::Frames(int id) : m_frame_id(id)
 {
 }
 
-Frames::Frames(int id, std::vector<cv::KeyPoint>&& kps, cv::Mat&& des) noexcept : m_frame_id(id),
-  m_kps(std::move(kps)), m_des(std::move(des))
+Frames::Frames(int id, std::vector<cv::KeyPoint>&& kps, cv::Mat&& des, cv::Mat&& input_frame) noexcept : m_frame_id(id),
+  m_kps(std::move(kps)), m_des(std::move(des)), m_frame(std::move(input_frame))
 {
 
 }
@@ -21,4 +21,9 @@ cv::Mat Frames::descriptors()
 std::vector<cv::KeyPoint> Frames::keypoints()
 {
   return m_kps;
+}
+
+cv::Mat Frames::frame()
+{
+  return m_frame;
 }

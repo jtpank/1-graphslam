@@ -16,8 +16,8 @@ add_executable(slam ${PROJECT_SOURCE_DIR}/src/${ENTRY_FILE}
   ${PROJECT_SOURCE_DIR}/src/Frames.cpp)
 
 #depends on where Pangolin is installed
-#set(Pangolin_DIR "${CMAKE_SOURCE_DIR}/deps/Pangolin/build")
-#find_package(Pangolin REQUIRED CONFIG)
+set(Pangolin_DIR "${CMAKE_SOURCE_DIR}/deps/Pangolin/build")
+find_package(Pangolin REQUIRED CONFIG)
 
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
@@ -41,7 +41,7 @@ if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     find_package(Eigen3 REQUIRED NO_MODULE)
     target_include_directories(slam PRIVATE ${OpenCV_INCLUDE_DIRS})
     target_include_directories(slam PRIVATE ${INCLUDE_DIRS})
-    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen)  #${Pangolin_LIBRARIES})
+    target_link_libraries(slam ${OpenCV_LIBS} pthread Eigen3::Eigen ${Pangolin_LIBRARIES})  #${Pangolin_LIBRARIES})
 endif()
 
 #OpenGL
